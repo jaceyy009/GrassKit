@@ -17,7 +17,6 @@
     "electron-builder": "^24.0.0"
   },
   "build": {
-    "publish": "never",
     "appId": "com.jacecastillo.grasskit",
     "productName": "GrassKit",
     "copyright": "Copyright © 2026 Jace Castillo",
