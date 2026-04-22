@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrassKit — Minecraft Biome Tinter</title>
+  <style>
+    /* =====================================================
+       WINDOWS 2000 / CLASSIC THEME
+    ===================================================== */
+    :root {
+      --win-bg: #d4d0c8;
+      --win-dark: #808080;
+      --win-darker: #404040;
+      --win-light: #ffffff;
+      --win-mid: #c0c0c0;
+      --win-titlebar: #000080;
+      --win-titlebar-text: #ffffff;
+      --win-titlebar-inactive: #7b7b7b;
+      --win-highlight: #0000ff;
+      --win-highlight-text: #ffffff;
+      --win-btn-face: #d4d0c8;
+      --win-btn-shadow: #808080;
+      --win-btn-dark-shadow: #404040;
+      --win-btn-highlight: #ffffff;
+      --win-btn-light: #e8e4dc;
+      --win-inset: #bdbdbd;
+      --win-text: #000000;
+      --win-disabled: #808080;
+      --win-green: #008000;
+      --win-field: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--win-bg);
+      color: var(--win-text);
+      font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif;
+      font-size: 11px;
+      min-height: 100vh;
+      padding: 8px;
+      user-select: none;
+    }
+
+    /* ---- WINDOW / PANEL ---- */
+    .window {
+      background: var(--win-bg);
+      border-top: 2px solid var(--win-btn-highlight);
+      border-left: 2px solid var(--win-btn-highlight);
+      border-right: 2px solid var(--win-btn-dark-shadow);
+      border-bottom: 2px solid var(--win-btn-dark-shadow);
+      box-shadow: inset -1px -1px 0 var(--win-btn-shadow), inset 1px 1px 0 var(--win-btn-light);
+      margin-bottom: 6px;
+    }
+
+    .window-titlebar {
+      background: var(--win-titlebar);
+      color: var(--win-titlebar-text);
+      font-weight: bold;
+      font-size: 11px;
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 2px 2px 0 2px;
+    }
+    .window-titlebar .title-icon { font-size: 13px; line-height: 1; }
+    .window-titlebar .title-text { flex: 1; }
+    .titlebar-btn {
+      width: 16px; height: 14px;
+      background: var(--win-btn-face);
+      border-top: 1px solid var(--win-btn-highlight);
+      border-left: 1px solid var(--win-btn-highlight);
+      border-right: 1px solid var(--win-btn-dark-shadow);
+      border-bottom: 1px solid var(--win-btn-dark-shadow);
+      font-size: 9px; line-height: 14px; text-align: center;
+      color: var(--win-text); cursor: default;
+      flex-shrink: 0;
+    }
+
+    .window-body { padding: 6px 8px 8px; }
+
+    /* ---- GROUPBOX ---- */
+    .groupbox {
+      border: 1px solid var(--win-btn-shadow);
+      box-shadow: inset 1px 1px 0 var(--win-btn-highlight);
+      padding: 12px 8px 8px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .groupbox-label {
+      position: absolute;
+      top: -7px; left: 8px;
+      background: var(--win-bg);
+      padding: 0 3px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    /* ---- INSET / SUNKEN ---- */
+    .inset {
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      background: var(--win-field);
+    }
+
+    /* ---- BUTTONS ---- */
+    button {
+      background: var(--win-btn-face);
+      border-top: 2px solid var(--win-btn-highlight);
+      border-left: 2px solid var(--win-btn-highlight);
+      border-right: 2px solid var(--win-btn-dark-shadow);
+      border-bottom: 2px solid var(--win-btn-dark-shadow);
+      box-shadow: inset -1px -1px 0 var(--win-btn-shadow), inset 1px 1px 0 var(--win-btn-light);
+      font-family: inherit;
+      font-size: 11px;
+      color: var(--win-text);
+      padding: 3px 12px;
+      cursor: pointer;
+      min-width: 75px;
+      white-space: nowrap;
+    }
+    button:active {
+      border-top: 2px solid var(--win-btn-dark-shadow);
+      border-left: 2px solid var(--win-btn-dark-shadow);
+      border-right: 2px solid var(--win-btn-highlight);
+      border-bottom: 2px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-shadow);
+      padding: 4px 11px 2px 13px;
+    }
+    button:disabled {
+      color: var(--win-disabled);
+      text-shadow: 1px 1px 0 var(--win-btn-highlight);
+      cursor: default;
+    }
+    button:focus { outline: 1px dotted var(--win-text); outline-offset: -4px; }
+
+    .btn-primary {
+      border: 2px solid var(--win-text);
+      box-shadow: inset -1px -1px 0 var(--win-btn-shadow), inset 1px 1px 0 var(--win-btn-light), 2px 2px 0 var(--win-text);
+    }
+
+    /* ---- INPUT / TEXT FIELDS ---- */
+    input[type=text], input[type=search] {
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      font-family: inherit; font-size: 11px;
+      padding: 2px 4px;
+      color: var(--win-text);
+      outline: none;
+      width: 100%;
+    }
+    input[type=text]:focus, input[type=search]:focus {
+      outline: 1px dotted var(--win-text);
+    }
+
+    /* ---- RANGE SLIDER ---- */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%; height: 20px;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 4px;
+      background: var(--win-btn-shadow);
+      border-top: 1px solid var(--win-btn-dark-shadow);
+      border-bottom: 1px solid var(--win-btn-highlight);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 11px; height: 20px;
+      margin-top: -8px;
+      background: var(--win-btn-face);
+      border-top: 2px solid var(--win-btn-highlight);
+      border-left: 2px solid var(--win-btn-highlight);
+      border-right: 2px solid var(--win-btn-dark-shadow);
+      border-bottom: 2px solid var(--win-btn-dark-shadow);
+    }
+
+    /* ---- RADIO / CHECKBOX ---- */
+    .radio-group, .check-group { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .radio-label, .check-label {
+      display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 11px;
+    }
+    input[type=radio], input[type=checkbox] { cursor: pointer; accent-color: var(--win-text); }
+
+    /* ---- LISTBOX ---- */
+    .listbox {
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      overflow-y: auto;
+      max-height: 150px;
+      margin-bottom: 6px;
+    }
+    .listbox::-webkit-scrollbar { width: 16px; }
+    .listbox::-webkit-scrollbar-track {
+      background: var(--win-bg);
+      border-left: 1px solid var(--win-btn-shadow);
+    }
+    .listbox::-webkit-scrollbar-thumb {
+      background: var(--win-btn-face);
+      border-top: 1px solid var(--win-btn-highlight);
+      border-left: 1px solid var(--win-btn-highlight);
+      border-right: 1px solid var(--win-btn-dark-shadow);
+      border-bottom: 1px solid var(--win-btn-dark-shadow);
+    }
+    .listbox::-webkit-scrollbar-button {
+      background: var(--win-btn-face);
+      border-top: 1px solid var(--win-btn-highlight);
+      border-left: 1px solid var(--win-btn-highlight);
+      border-right: 1px solid var(--win-btn-dark-shadow);
+      border-bottom: 1px solid var(--win-btn-dark-shadow);
+      height: 16px;
+    }
+    .list-item {
+      padding: 2px 6px; font-size: 11px; cursor: default;
+      display: flex; justify-content: space-between;
+      white-space: nowrap;
+    }
+    .list-item:hover { background: var(--win-highlight); color: var(--win-highlight-text); }
+    .list-item.selected { background: var(--win-highlight); color: var(--win-highlight-text); }
+    .list-item .tag { font-size: 10px; color: var(--win-disabled); margin-left: 8px; }
+    .list-item.selected .tag { color: #aaaaff; }
+
+    /* ---- UPLOAD BUTTON ROW ---- */
+    .upload-row {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+    }
+    .upload-row .field-label { width: 80px; flex-shrink: 0; }
+    .upload-row .file-display {
+      flex: 1;
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      padding: 2px 4px; font-size: 11px; color: var(--win-disabled);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      min-height: 20px;
+    }
+    .upload-row .file-display.loaded { color: var(--win-text); }
+    .upload-btn-wrap { position: relative; }
+    .upload-btn-wrap input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+
+    /* ---- STATUS BAR ---- */
+    .statusbar {
+      border-top: 1px solid var(--win-btn-shadow);
+      padding: 2px 6px;
+      display: flex; gap: 2px;
+      background: var(--win-bg);
+      margin-top: 4px;
+    }
+    .status-pane {
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      padding: 1px 6px; font-size: 11px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .status-pane.grow { flex: 1; }
+
+    /* ---- LAYOUT ---- */
+    .app-title {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--win-titlebar);
+      color: var(--win-titlebar-text);
+      padding: 4px 8px;
+      font-weight: bold; font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .app-title .icon { font-size: 18px; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 6px;
+      align-items: start;
+    }
+    @media (max-width: 700px) { .main-layout { grid-template-columns: 1fr; } }
+
+    .left-col { display: flex; flex-direction: column; gap: 4px; }
+    .right-col { display: flex; flex-direction: column; gap: 6px; }
+
+    /* ---- CANVAS AREAS ---- */
+    .preview-area {
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 180px; position: relative; overflow: hidden;
+    }
+    .preview-area::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+        linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+      background-size: 12px 12px;
+      background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+    }
+    .preview-area canvas { position: relative; z-index: 1; image-rendering: pixelated; max-width: 100%; max-height: 260px; }
+    .preview-placeholder { color: var(--win-disabled); font-size: 11px; z-index: 1; text-align: center; line-height: 2; }
+
+    .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .thumb-win { }
+    .thumb-preview {
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100px; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .thumb-preview::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+        linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+      background-size: 10px 10px;
+      background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+    }
+    .thumb-preview canvas { position: relative; z-index: 1; image-rendering: pixelated; max-width: 100%; max-height: 140px; }
+    .thumb-preview:hover { background: #fffff0; }
+    .thumb-hint { font-size: 10px; color: var(--win-disabled); text-align: center; margin-top: 2px; }
+
+    /* ---- SWATCH ---- */
+    .swatch-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    .swatch-box {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      overflow: hidden;
+    }
+    .swatch-box canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+
+    /* ---- SEPARATOR ---- */
+    .sep { border: none; border-top: 1px solid var(--win-btn-shadow); border-bottom: 1px solid var(--win-btn-highlight); margin: 4px 0; }
+
+    /* ---- LABEL ROW ---- */
+    .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+    .label-row .lval { font-weight: bold; color: var(--win-green); }
+
+    /* ---- MODE TABS (fake classic tabs) ---- */
+    .tab-strip { display: flex; gap: 2px; margin-bottom: -1px; padding-left: 4px; }
+    .tab {
+      padding: 3px 10px 4px;
+      background: var(--win-btn-face);
+      border-top: 1px solid var(--win-btn-highlight);
+      border-left: 1px solid var(--win-btn-highlight);
+      border-right: 1px solid var(--win-btn-shadow);
+      border-bottom: 1px solid var(--win-btn-face);
+      font-size: 11px; cursor: pointer;
+      position: relative; z-index: 1;
+    }
+    .tab.active {
+      background: var(--win-bg);
+      border-bottom: 1px solid var(--win-bg);
+      margin-top: -2px;
+      font-weight: bold;
+    }
+    .tab-content {
+      border: 1px solid var(--win-btn-shadow);
+      box-shadow: inset 1px 0 0 var(--win-btn-highlight);
+      padding: 8px;
+      display: none;
+      background: var(--win-bg);
+    }
+    .tab-content.active { display: block; }
+
+    /* ---- GRASS SIDE MODE ---- */
+    .grass-side-panel {
+      background: #ffffd0;
+      border: 1px solid var(--win-btn-shadow);
+      box-shadow: inset 1px 1px 0 var(--win-btn-highlight);
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+    }
+    .grass-side-panel .gs-title { font-weight: bold; margin-bottom: 4px; color: var(--win-green); }
+
+    /* ---- LIGHTBOX ---- */
+    .lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 9000; display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-win {
+      background: var(--win-bg);
+      border-top: 2px solid var(--win-btn-highlight);
+      border-left: 2px solid var(--win-btn-highlight);
+      border-right: 2px solid var(--win-btn-dark-shadow);
+      border-bottom: 2px solid var(--win-btn-dark-shadow);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      max-width: 92vw;
+    }
+    .lightbox-titlebar {
+      background: var(--win-titlebar);
+      color: var(--win-titlebar-text);
+      font-weight: bold; font-size: 11px;
+      padding: 3px 6px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: default;
+    }
+    .lightbox-body {
+      padding: 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .lightbox-img-wrap {
+      background: var(--win-field);
+      border-top: 1px solid var(--win-btn-shadow);
+      border-left: 1px solid var(--win-btn-shadow);
+      border-right: 1px solid var(--win-btn-highlight);
+      border-bottom: 1px solid var(--win-btn-highlight);
+      box-shadow: inset 1px 1px 0 var(--win-btn-dark-shadow);
+      padding: 4px; position: relative; overflow: hidden;
+    }
+    .lightbox-img-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+        linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+      background-size: 12px 12px;
+      background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+    }
+    #lightbox-canvas {
+      image-rendering: pixelated;
+      max-width: 88vw; max-height: 76vh;
+      display: block; position: relative; z-index: 1;
+    }
+    .lightbox-close-btn { min-width: 75px; }
+
+    /* ---- TOAST ---- */
+    .toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--win-titlebar); color: var(--win-titlebar-text);
+      padding: 6px 16px; font-size: 11px; font-weight: bold;
+      border-top: 2px solid var(--win-btn-highlight);
+      border-left: 2px solid var(--win-btn-highlight);
+      border-right: 2px solid var(--win-btn-dark-shadow);
+      border-bottom: 2px solid var(--win-btn-dark-shadow);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+      transition: transform 0.2s; z-index: 8000;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* misc helpers */
+    .flex-row { display: flex; gap: 6px; align-items: center; }
+    .flex-row.wrap { flex-wrap: wrap; }
+    .mt2 { margin-top: 2px; }
+    .mt4 { margin-top: 4px; }
+    .mb4 { margin-bottom: 4px; }
+    .bold { font-weight: bold; }
+    .green { color: var(--win-green); }
+    .disabled-text { color: var(--win-disabled); }
+  </style>
+</head>
+<body>
+
+<!-- App titlebar -->
+<div class="app-title">
+  <span class="icon">🌿</span>
+  GrassKit — Minecraft Biome Colormap Tinter
+  <span style="margin-left:auto;font-size:11px;font-weight:normal;">GamLo Studios</span>
+</div>
+
+<div class="main-layout">
+
+  <!-- ====== LEFT COLUMN ====== -->
+  <div class="left-col">
+
+    <!-- Textures -->
+    <div class="window">
+      <div class="window-titlebar">
+        <span class="title-icon">🖼</span>
+        <span class="title-text">Textures</span>
+        <span class="titlebar-btn">_</span>
+        <span class="titlebar-btn">□</span>
+        <span class="titlebar-btn">✕</span>
+      </div>
+      <div class="window-body">
+
+        <!-- Grass side mode checkbox -->
+        <div class="grass-side-panel" id="grass-side-panel">
+          <div class="gs-title">🌱 Grass Side Mode</div>
+          <label class="check-label mb4">
+            <input type="checkbox" id="grass-side-toggle" />
+            Enable grass side compositing
+          </label>
+          <div id="grass-side-extra" style="display:none; margin-top:6px;">
+            <div style="margin-bottom:4px; color:#555;">Upload the dirt base separately. GrassKit will tint the overlay and layer it on top.</div>
+            <div class="upload-row">
+              <span class="field-label">Overlay:</span>
+              <div class="file-display" id="overlay-display">(not loaded)</div>
+              <div class="upload-btn-wrap">
+                <button>Browse...</button>
+                <input type="file" id="overlay-input" accept="image/png" />
+              </div>
+            </div>
+            <div class="upload-row">
+              <span class="field-label">Dirt base:</span>
+              <div class="file-display" id="dirt-display">(not loaded)</div>
+              <div class="upload-btn-wrap">
+                <button>Browse...</button>
+                <input type="file" id="dirt-input" accept="image/png" />
+              </div>
+            </div>
+          </div>
+          <div id="grass-side-normal">
+            <div class="upload-row mt2">
+              <span class="field-label">Texture:</span>
+              <div class="file-display" id="tex-display">(not loaded)</div>
+              <div class="upload-btn-wrap">
+                <button>Browse...</button>
+                <input type="file" id="tex-input" accept="image/png,image/jpeg,image/webp" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colormaps -->
+        <div class="groupbox">
+          <span class="groupbox-label">Colormaps</span>
+          <div class="upload-row">
+            <span class="field-label">grass.png:</span>
+            <div class="file-display" id="grass-cm-display">(not loaded)</div>
+            <div class="upload-btn-wrap">
+              <button>Browse...</button>
+              <input type="file" id="grass-cm-input" accept="image/png" />
+            </div>
+          </div>
+          <div class="upload-row">
+            <span class="field-label">foliage.png:</span>
+            <div class="file-display" id="foliage-cm-display">(not loaded)</div>
+            <div class="upload-btn-wrap">
+              <button>Browse...</button>
+              <input type="file" id="foliage-cm-input" accept="image/png" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Mask -->
+        <div class="groupbox">
+          <span class="groupbox-label">Tint Mask (optional)</span>
+          <div style="font-size:10px; color:var(--win-disabled); margin-bottom:4px;">White = tint · Black = keep original</div>
+          <div class="upload-row">
+            <span class="field-label">mask.png:</span>
+            <div class="file-display" id="mask-display">(not loaded)</div>
+            <div class="upload-btn-wrap">
+              <button>Browse...</button>
+              <input type="file" id="mask-input" accept="image/png" />
+            </div>
+          </div>
+          <div class="flex-row mt2">
+            <button id="mask-clear-btn" disabled>Clear Mask</button>
+            <span id="mask-status-text" class="disabled-text">No mask loaded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biome / Color -->
+    <div class="window">
+      <div class="window-titlebar">
+        <span class="title-icon">🗺</span>
+        <span class="title-text">Biome &amp; Color</span>
+        <span class="titlebar-btn">_</span>
+        <span class="titlebar-btn">□</span>
+        <span class="titlebar-btn">✕</span>
+      </div>
+      <div class="window-body">
+
+        <!-- Colormap type -->
+        <div class="groupbox mb4">
+          <span class="groupbox-label">Colormap Type</span>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="cmtype" value="grass" checked /> Grass</label>
+            <label class="radio-label"><input type="radio" name="cmtype" value="foliage" /> Foliage</label>
+          </div>
+        </div>
+
+        <!-- Mode tabs -->
+        <div class="tab-strip">
+          <div class="tab active" id="tab-biome" onclick="switchTab('biome')">Biome Preset</div>
+          <div class="tab" id="tab-manual" onclick="switchTab('manual')">Manual</div>
+        </div>
+
+        <div class="tab-content active" id="tabcontent-biome">
+          <div class="mb4">
+            <input type="search" id="biome-search" placeholder="Search biomes..." />
+          </div>
+          <div class="listbox" id="biome-list"></div>
+        </div>
+
+        <div class="tab-content" id="tabcontent-manual">
+          <div class="label-row mb4">
+            <span>Temperature:</span>
+            <span class="lval" id="temp-val">0.50</span>
+          </div>
+          <input type="range" id="temp-slider" min="0" max="1" step="0.01" value="0.5" />
+          <hr class="sep" />
+          <div class="label-row mb4 mt4">
+            <span>Humidity (Downfall):</span>
+            <span class="lval" id="hum-val">0.50</span>
+          </div>
+          <input type="range" id="hum-slider" min="0" max="1" step="0.01" value="0.5" />
+        </div>
+
+        <!-- Tint swatch -->
+        <hr class="sep" />
+        <div class="swatch-row">
+          <div class="swatch-box"><canvas id="swatch-canvas" width="1" height="1"></canvas></div>
+          <div>
+            <div>Tint Color: <span class="bold green" id="swatch-hex">#------</span></div>
+            <div class="disabled-text" id="swatch-note">Load a colormap to sample</div>
+          </div>
+        </div>
+
+        <hr class="sep" />
+        <div class="flex-row mt4">
+          <button class="btn-primary" id="apply-btn" disabled>Apply Tint</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== RIGHT COLUMN ====== -->
+  <div class="right-col">
+
+    <!-- Main Preview -->
+    <div class="window">
+      <div class="window-titlebar">
+        <span class="title-icon">👁</span>
+        <span class="title-text">Preview</span>
+        <span class="titlebar-btn">_</span>
+        <span class="titlebar-btn">□</span>
+        <span class="titlebar-btn">✕</span>
+      </div>
+      <div class="window-body">
+        <div class="preview-area">
+          <div class="preview-placeholder" id="preview-placeholder">Upload a texture to get started</div>
+          <canvas id="preview-canvas" style="display:none;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare -->
+    <div class="window">
+      <div class="window-titlebar">
+        <span class="title-icon">⇄</span>
+        <span class="title-text">Before / After — Click to Enlarge</span>
+        <span class="titlebar-btn">_</span>
+        <span class="titlebar-btn">□</span>
+        <span class="titlebar-btn">✕</span>
+      </div>
+      <div class="window-body">
+        <div class="compare-row">
+          <div class="thumb-win">
+            <div style="font-weight:bold; margin-bottom:3px;">Original</div>
+            <div class="thumb-preview" id="orig-box">
+              <canvas id="orig-canvas"></canvas>
+            </div>
+            <div class="thumb-hint">Click to enlarge</div>
+          </div>
+          <div class="thumb-win">
+            <div style="font-weight:bold; margin-bottom:3px;">Tinted</div>
+            <div class="thumb-preview" id="tinted-box">
+              <canvas id="tinted-canvas"></canvas>
+            </div>
+            <div class="thumb-hint">Click to enlarge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info + Export -->
+    <div class="window">
+      <div class="window-titlebar">
+        <span class="title-icon">💾</span>
+        <span class="title-text">Info &amp; Export</span>
+        <span class="titlebar-btn">_</span>
+        <span class="titlebar-btn">□</span>
+        <span class="titlebar-btn">✕</span>
+      </div>
+      <div class="window-body">
+        <div class="statusbar" style="border:none; padding:0; margin-bottom:8px;">
+          <div class="status-pane grow">Biome: <span id="info-biome">—</span></div>
+          <div class="status-pane">Temp: <span id="info-temp">—</span></div>
+          <div class="status-pane">Hum: <span id="info-hum">—</span></div>
+          <div class="status-pane">Coord: <span id="info-coord">—</span></div>
+          <div class="status-pane">Size: <span id="info-size">—</span></div>
+          <div class="status-pane">Mask: <span id="info-mask">none</span></div>
+          <div class="status-pane">Mode: <span id="info-mode">normal</span></div>
+        </div>
+        <div class="flex-row">
+          <button id="export-tinted" disabled>💾 Save Tinted PNG</button>
+          <button id="export-orig" disabled>💾 Save Original PNG</button>
+          <button id="export-composite" disabled style="display:none;">💾 Save Composite PNG</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-win">
+    <div class="lightbox-titlebar">
+      <span id="lightbox-title">Image Preview</span>
+      <span class="titlebar-btn" style="cursor:pointer;" onclick="closeLightbox()">✕</span>
+    </div>
+    <div class="lightbox-body">
+      <div class="lightbox-img-wrap">
+        <canvas id="lightbox-canvas"></canvas>
+      </div>
+      <button class="lightbox-close-btn" onclick="closeLightbox()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// BIOME DATA
+// ============================================================
+const BIOMES = [
+  { name: "Plains",                     id: "plains",                     temp: 0.8,  downfall: 0.4 },
+  { name: "Sunflower Plains",           id: "sunflower_plains",           temp: 0.8,  downfall: 0.4 },
+  { name: "Forest",                     id: "forest",                     temp: 0.7,  downfall: 0.8 },
+  { name: "Flower Forest",              id: "flower_forest",              temp: 0.7,  downfall: 0.8 },
+  { name: "Birch Forest",               id: "birch_forest",               temp: 0.6,  downfall: 0.6 },
+  { name: "Old Growth Birch Forest",    id: "old_growth_birch_forest",    temp: 0.6,  downfall: 0.6 },
+  { name: "Dark Forest",                id: "dark_forest",                temp: 0.7,  downfall: 0.8 },
+  { name: "Pale Garden",                id: "pale_garden",                temp: 0.7,  downfall: 0.8 },
+  { name: "Taiga",                      id: "taiga",                      temp: 0.25, downfall: 0.8 },
+  { name: "Old Growth Pine Taiga",      id: "old_growth_pine_taiga",      temp: 0.3,  downfall: 0.8 },
+  { name: "Old Growth Spruce Taiga",    id: "old_growth_spruce_taiga",    temp: 0.25, downfall: 0.8 },
+  { name: "Snowy Taiga",                id: "snowy_taiga",                temp:-0.5,  downfall: 0.4 },
+  { name: "Snowy Plains",               id: "snowy_plains",               temp: 0.0,  downfall: 0.5, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Ice Spikes",                 id: "ice_spikes",                 temp: 0.0,  downfall: 0.5, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Snowy Slopes",               id: "snowy_slopes",               temp:-0.3,  downfall: 0.9, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Frozen Peaks",               id: "frozen_peaks",               temp:-0.7,  downfall: 0.9, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Jagged Peaks",               id: "jagged_peaks",               temp:-0.7,  downfall: 0.9, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Stony Peaks",                id: "stony_peaks",                temp: 1.0,  downfall: 0.3 },
+  { name: "Grove",                      id: "grove",                      temp:-0.2,  downfall: 0.8, hardcoded:[0xe0f0ff,0x80b497] },
+  { name: "Meadow",                     id: "meadow",                     temp: 0.5,  downfall: 0.8 },
+  { name: "Cherry Grove",               id: "cherry_grove",               temp: 0.5,  downfall: 0.8 },
+  { name: "Desert",                     id: "desert",                     temp: 2.0,  downfall: 0.0 },
+  { name: "Savanna",                    id: "savanna",                    temp: 1.2,  downfall: 0.0 },
+  { name: "Acacia",                     id: "acacia",                     temp: 1.2,  downfall: 0.0 },
+  { name: "Savanna Plateau",            id: "savanna_plateau",            temp: 1.0,  downfall: 0.0 },
+  { name: "Windswept Savanna",          id: "windswept_savanna",          temp: 1.1,  downfall: 0.0 },
+  { name: "Jungle",                     id: "jungle",                     temp: 0.95, downfall: 0.9 },
+  { name: "Sparse Jungle",              id: "sparse_jungle",              temp: 0.95, downfall: 0.8 },
+  { name: "Bamboo Jungle",              id: "bamboo_jungle",              temp: 0.95, downfall: 0.9 },
+  { name: "Badlands",                   id: "badlands",                   temp: 2.0,  downfall: 0.0, hardcoded:[0x90814d,0x9e814d] },
+  { name: "Wooded Badlands",            id: "wooded_badlands",            temp: 2.0,  downfall: 0.0, hardcoded:[0x90814d,0x9e814d] },
+  { name: "Eroded Badlands",            id: "eroded_badlands",            temp: 2.0,  downfall: 0.0, hardcoded:[0x90814d,0x9e814d] },
+  { name: "Swamp",                      id: "swamp",                      temp: 0.8,  downfall: 0.9, hardcoded:[0x6a7039,0x6a7039] },
+  { name: "Mangrove Swamp",             id: "mangrove_swamp",             temp: 0.8,  downfall: 0.9, hardcoded:[0x6a7039,0x6a7039] },
+  { name: "Beach",                      id: "beach",                      temp: 0.8,  downfall: 0.4 },
+  { name: "Snowy Beach",                id: "snowy_beach",                temp: 0.05, downfall: 0.3 },
+  { name: "Stony Shore",                id: "stony_shore",                temp: 0.2,  downfall: 0.3 },
+  { name: "Ocean",                      id: "ocean",                      temp: 0.5,  downfall: 0.5 },
+  { name: "Deep Ocean",                 id: "deep_ocean",                 temp: 0.5,  downfall: 0.5 },
+  { name: "Warm Ocean",                 id: "warm_ocean",                 temp: 0.5,  downfall: 0.5 },
+  { name: "Lukewarm Ocean",             id: "lukewarm_ocean",             temp: 0.5,  downfall: 0.5 },
+  { name: "Deep Lukewarm Ocean",        id: "deep_lukewarm_ocean",        temp: 0.5,  downfall: 0.5 },
+  { name: "Cold Ocean",                 id: "cold_ocean",                 temp: 0.5,  downfall: 0.5 },
+  { name: "Deep Cold Ocean",            id: "deep_cold_ocean",            temp: 0.5,  downfall: 0.5 },
+  { name: "Frozen Ocean",               id: "frozen_ocean",               temp: 0.0,  downfall: 0.5 },
+  { name: "Deep Frozen Ocean",          id: "deep_frozen_ocean",          temp: 0.0,  downfall: 0.5 },
+  { name: "River",                      id: "river",                      temp: 0.5,  downfall: 0.5 },
+  { name: "Frozen River",               id: "frozen_river",               temp: 0.0,  downfall: 0.5 },
+  { name: "Mushroom Fields",            id: "mushroom_fields",            temp: 0.9,  downfall: 1.0 },
+  { name: "Windswept Hills",            id: "windswept_hills",            temp: 0.2,  downfall: 0.3 },
+  { name: "Windswept Forest",           id: "windswept_forest",           temp: 0.2,  downfall: 0.3 },
+  { name: "Windswept Gravelly Hills",   id: "windswept_gravelly_hills",   temp: 0.2,  downfall: 0.3 },
+  { name: "Lush Caves",                 id: "lush_caves",                 temp: 0.5,  downfall: 0.5 },
+  { name: "Dripstone Caves",            id: "dripstone_caves",            temp: 0.8,  downfall: 0.4 },
+  { name: "Deep Dark",                  id: "deep_dark",                  temp: 0.8,  downfall: 0.4 },
+  { name: "Nether Wastes",              id: "nether_wastes",              temp: 2.0,  downfall: 0.0 },
+  { name: "Soul Sand Valley",           id: "soul_sand_valley",           temp: 2.0,  downfall: 0.0 },
+  { name: "Crimson Forest",             id: "crimson_forest",             temp: 2.0,  downfall: 0.0 },
+  { name: "Warped Forest",              id: "warped_forest",              temp: 2.0,  downfall: 0.0 },
+  { name: "Basalt Deltas",              id: "basalt_deltas",              temp: 2.0,  downfall: 0.0 },
+  { name: "The End",                    id: "the_end",                    temp: 0.5,  downfall: 0.5 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let texImage = null, grassCmImage = null, foliageCmImage = null;
+let maskImage = null, overlayImage = null, dirtImage = null;
+let selectedBiome = BIOMES[0], colormapType = 'grass', tabMode = 'biome';
+let grassSideMode = false;
+let tintedImageData = null, compositeImageData = null;
+
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// UTILS
+// ============================================================
+function showToast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+function hexFromRgb(r,g,b) { return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+function loadImageFromFile(file) {
+  return new Promise((res,rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = rej; img.src = url;
+  });
+}
+function sampleColormap(cm, temp, downfall) {
+  const t=Math.min(1,Math.max(0,temp)), h=Math.min(1,Math.max(0,downfall))*t;
+  const x=Math.floor((1-t)*255), y=Math.floor((1-h)*255);
+  const oc=document.createElement('canvas');
+  oc.width=cm.naturalWidth||cm.width; oc.height=cm.naturalHeight||cm.height;
+  oc.getContext('2d').drawImage(cm,0,0);
+  const px=oc.getContext('2d').getImageData(x,y,1,1).data;
+  return {r:px[0],g:px[1],b:px[2]};
+}
+function multiply(sR,sG,sB,tR,tG,tB) {
+  return {r:Math.round(sR*tR/255),g:Math.round(sG*tG/255),b:Math.round(sB*tB/255)};
+}
+
+// ============================================================
+// LIGHTBOX
+// ============================================================
+function openLightbox(srcCanvas, title) {
+  $('lightbox-title').textContent = title;
+  const lc = $('lightbox-canvas');
+  lc.width = srcCanvas.width; lc.height = srcCanvas.height;
+  lc.getContext('2d').drawImage(srcCanvas,0,0);
+  const maxW=window.innerWidth*0.86, maxH=window.innerHeight*0.74;
+  const scale=Math.min(maxW/srcCanvas.width, maxH/srcCanvas.height, 12);
+  lc.style.width=Math.floor(srcCanvas.width*scale)+'px';
+  lc.style.height=Math.floor(srcCanvas.height*scale)+'px';
+  $('lightbox').classList.add('open');
+}
+function closeLightbox() { $('lightbox').classList.remove('open'); }
+$('lightbox').addEventListener('click', e => { if(e.target===$('lightbox')) closeLightbox(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLightbox(); });
+$('orig-box').addEventListener('click', () => { if($('orig-canvas').width>0) openLightbox($('orig-canvas'),'Original Texture'); });
+$('tinted-box').addEventListener('click', () => { if($('tinted-canvas').width>0) openLightbox($('tinted-canvas'),'Tinted Result'); });
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(t) {
+  tabMode = t;
+  ['biome','manual'].forEach(n => {
+    $('tab-'+n).classList.toggle('active', n===t);
+    $('tabcontent-'+n).classList.toggle('active', n===t);
+  });
+  updateSwatch();
+}
+
+// ============================================================
+// GRASS SIDE MODE TOGGLE
+// ============================================================
+$('grass-side-toggle').addEventListener('change', e => {
+  grassSideMode = e.target.checked;
+  $('grass-side-extra').style.display = grassSideMode ? 'block' : 'none';
+  $('grass-side-normal').style.display = grassSideMode ? 'none' : 'block';
+  $('export-composite').style.display = grassSideMode ? 'inline-block' : 'none';
+  $('info-mode').textContent = grassSideMode ? 'grass-side' : 'normal';
+  checkApplyReady();
+});
+
+// ============================================================
+// BIOME LIST
+// ============================================================
+function renderBiomeList(filter='') {
+  const el=$('biome-list'); el.innerHTML='';
+  const list=filter?BIOMES.filter(b=>b.name.toLowerCase().includes(filter.toLowerCase())):BIOMES;
+  list.forEach(b=>{
+    const div=document.createElement('div');
+    div.className='list-item'+(b===selectedBiome?' selected':'');
+    div.innerHTML=`<span>${b.name}</span><span class="tag">${b.hardcoded?'hardcoded':`${b.temp}/${b.downfall}`}</span>`;
+    div.addEventListener('click',()=>{ selectedBiome=b; renderBiomeList(filter); updateSwatch(); });
+    el.appendChild(div);
+  });
+}
+$('biome-search').addEventListener('input', e=>renderBiomeList(e.target.value));
+
+// ============================================================
+// COLORMAP TYPE RADIOS
+// ============================================================
+document.querySelectorAll('input[name="cmtype"]').forEach(r=>{
+  r.addEventListener('change', ()=>{ colormapType=r.value; updateSwatch(); });
+});
+
+// ============================================================
+// SLIDERS
+// ============================================================
+$('temp-slider').addEventListener('input',()=>{ $('temp-val').textContent=parseFloat($('temp-slider').value).toFixed(2); updateSwatch(); });
+$('hum-slider').addEventListener('input',()=>{ $('hum-val').textContent=parseFloat($('hum-slider').value).toFixed(2); updateSwatch(); });
+
+// ============================================================
+// TINT COLOR + SWATCH
+// ============================================================
+function getTintColor() {
+  let temp, downfall;
+  if (tabMode==='biome') {
+    if(selectedBiome.hardcoded){
+      const c=selectedBiome.hardcoded[colormapType==='grass'?0:1];
+      return {r:(c>>16)&0xff,g:(c>>8)&0xff,b:c&0xff,hardcoded:true};
+    }
+    temp=selectedBiome.temp; downfall=selectedBiome.downfall;
+  } else { temp=parseFloat($('temp-slider').value); downfall=parseFloat($('hum-slider').value); }
+  const cm=colormapType==='grass'?grassCmImage:foliageCmImage;
+  if(!cm) return null;
+  return {...sampleColormap(cm,temp,downfall),hardcoded:false};
+}
+function getCoord() {
+  const temp=tabMode==='biome'?selectedBiome.temp:parseFloat($('temp-slider').value);
+  const df=tabMode==='biome'?selectedBiome.downfall:parseFloat($('hum-slider').value);
+  const t=Math.min(1,Math.max(0,temp)), h=Math.min(1,Math.max(0,df))*t;
+  return {x:Math.floor((1-t)*255),y:Math.floor((1-h)*255)};
+}
+function updateSwatch() {
+  const tint=getTintColor();
+  const coord=getCoord();
+  const b=tabMode==='biome'?selectedBiome:null;
+  $('info-biome').textContent=b?b.name:'manual';
+  $('info-temp').textContent=b?b.temp:$('temp-slider').value;
+  $('info-hum').textContent=b?b.downfall:$('hum-slider').value;
+  $('info-coord').textContent=`${coord.x},${coord.y}`;
+  $('info-mask').textContent=maskImage?'active':'none';
+  if(!tint){ $('swatch-hex').textContent='#------'; $('swatch-note').textContent='Load a colormap to sample'; return; }
+  const ctx=$('swatch-canvas').getContext('2d');
+  ctx.fillStyle=`rgb(${tint.r},${tint.g},${tint.b})`; ctx.fillRect(0,0,1,1);
+  $('swatch-hex').textContent=hexFromRgb(tint.r,tint.g,tint.b);
+  $('swatch-note').textContent=tint.hardcoded?'Hardcoded biome color':'Sampled from colormap';
+  checkApplyReady();
+}
+function checkApplyReady() {
+  const cmOk=colormapType==='grass'?!!grassCmImage:!!foliageCmImage;
+  const texOk=grassSideMode?(!!overlayImage&&!!dirtImage):!!texImage;
+  $('apply-btn').disabled=!(texOk&&cmOk);
+}
+
+// ============================================================
+// FILE UPLOADS
+// ============================================================
+async function handleFileUpload(file, type) {
+  const img = await loadImageFromFile(file);
+  switch(type) {
+    case 'tex':
+      texImage=img;
+      setDisplay('tex-display', file.name);
+      drawOrigThumb(img);
+      $('export-orig').disabled=false;
+      break;
+    case 'overlay':
+      overlayImage=img;
+      setDisplay('overlay-display', file.name);
+      drawOrigThumb(img);
+      break;
+    case 'dirt':
+      dirtImage=img;
+      setDisplay('dirt-display', file.name);
+      break;
+    case 'grass-cm':
+      grassCmImage=img;
+      setDisplay('grass-cm-display', file.name);
+      showToast('Grass colormap loaded');
+      break;
+    case 'foliage-cm':
+      foliageCmImage=img;
+      setDisplay('foliage-cm-display', file.name);
+      showToast('Foliage colormap loaded');
+      break;
+    case 'mask':
+      maskImage=img;
+      setDisplay('mask-display', file.name);
+      $('mask-clear-btn').disabled=false;
+      $('mask-status-text').textContent='Mask active';
+      $('info-mask').textContent='active';
+      showToast('Mask loaded');
+      break;
+  }
+  updateSwatch();
+  checkApplyReady();
+  if(texImage||overlayImage) $('export-orig').disabled=false;
+}
+
+function setDisplay(id, name) {
+  const el=$(id); el.textContent=name; el.classList.add('loaded');
+}
+
+function drawOrigThumb(img) {
+  const oc=$('orig-canvas'); oc.width=img.naturalWidth; oc.height=img.naturalHeight;
+  oc.getContext('2d').drawImage(img,0,0);
+  $('preview-placeholder').style.display='none';
+  $('preview-canvas').style.display='block';
+  $('preview-canvas').width=img.naturalWidth; $('preview-canvas').height=img.naturalHeight;
+  $('preview-canvas').getContext('2d').drawImage(img,0,0);
+  $('info-size').textContent=`${img.naturalWidth}×${img.naturalHeight}`;
+}
+
+$('tex-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'tex');});
+$('overlay-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'overlay');});
+$('dirt-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'dirt');});
+$('grass-cm-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'grass-cm');});
+$('foliage-cm-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'foliage-cm');});
+$('mask-input').addEventListener('change',e=>{if(e.target.files[0])handleFileUpload(e.target.files[0],'mask');});
+
+$('mask-clear-btn').addEventListener('click',()=>{
+  maskImage=null; $('mask-display').textContent='(not loaded)'; $('mask-display').classList.remove('loaded');
+  $('mask-clear-btn').disabled=true; $('mask-status-text').textContent='No mask loaded'; $('info-mask').textContent='none';
+  $('mask-input').value=''; showToast('Mask cleared');
+});
+
+// ============================================================
+// APPLY TINT
+// ============================================================
+function applyTintToPixels(srcData, tint, maskData, w, h) {
+  const out=new ImageData(w,h);
+  for(let i=0;i<srcData.data.length;i+=4) {
+    const sR=srcData.data[i],sG=srcData.data[i+1],sB=srcData.data[i+2],sA=srcData.data[i+3];
+    let rR=sR,rG=sG,rB=sB;
+    if(maskData) {
+      const mb=(maskData.data[i]+maskData.data[i+1]+maskData.data[i+2])/(3*255);
+      if(mb>0.01){
+        const bl=multiply(sR,sG,sB,tint.r,tint.g,tint.b);
+        rR=Math.round(sR+(bl.r-sR)*mb); rG=Math.round(sG+(bl.g-sG)*mb); rB=Math.round(sB+(bl.b-sB)*mb);
+      }
+    } else {
+      const bl=multiply(sR,sG,sB,tint.r,tint.g,tint.b); rR=bl.r;rG=bl.g;rB=bl.b;
+    }
+    out.data[i]=rR;out.data[i+1]=rG;out.data[i+2]=rB;out.data[i+3]=sA;
+  }
+  return out;
+}
+
+$('apply-btn').addEventListener('click',()=>{
+  const tint=getTintColor(); if(!tint){showToast('Load a colormap first!');return;}
+
+  if(grassSideMode) {
+    // Grass side composite mode
+    if(!overlayImage||!dirtImage){showToast('Load overlay and dirt textures!');return;}
+    const w=dirtImage.naturalWidth, h=dirtImage.naturalHeight;
+
+    // Get dirt base pixels
+    const dirtC=document.createElement('canvas'); dirtC.width=w;dirtC.height=h;
+    dirtC.getContext('2d').drawImage(dirtImage,0,0);
+
+    // Get overlay pixels
+    const ovC=document.createElement('canvas'); ovC.width=w;ovC.height=h;
+    ovC.getContext('2d').drawImage(overlayImage,0,0,w,h);
+    const ovData=ovC.getContext('2d').getImageData(0,0,w,h);
+
+    // Mask for overlay: skip fully-black / fully-transparent pixels
+    let maskData=null;
+    if(maskImage){
+      const mc=document.createElement('canvas');mc.width=w;mc.height=h;
+      mc.getContext('2d').drawImage(maskImage,0,0,w,h);
+      maskData=mc.getContext('2d').getImageData(0,0,w,h);
+    }
+
+    // Tint overlay
+    const tintedOv=applyTintToPixels(ovData,tint,maskData,w,h);
+
+    // Composite: draw dirt base first, then tinted overlay on top
+    const compC=document.createElement('canvas'); compC.width=w;compC.height=h;
+    const compCtx=compC.getContext('2d');
+    compCtx.drawImage(dirtImage,0,0);
+    compCtx.putImageData(tintedOv,0,0);
+
+    // Read final composite
+    compositeImageData=compCtx.getImageData(0,0,w,h);
+
+    // Update previews
+    $('preview-canvas').width=w;$('preview-canvas').height=h;
+    $('preview-canvas').getContext('2d').putImageData(compositeImageData,0,0);
+    $('tinted-canvas').width=w;$('tinted-canvas').height=h;
+    $('tinted-canvas').getContext('2d').putImageData(compositeImageData,0,0);
+
+    tintedImageData=compositeImageData;
+    $('export-tinted').disabled=false;
+    $('export-composite').disabled=false;
+    showToast('Grass side composite applied!');
+
+  } else {
+    // Normal tint mode
+    if(!texImage){showToast('Load a texture first!');return;}
+    const w=texImage.naturalWidth,h=texImage.naturalHeight;
+    const src=document.createElement('canvas');src.width=w;src.height=h;
+    src.getContext('2d').drawImage(texImage,0,0);
+    const srcData=src.getContext('2d').getImageData(0,0,w,h);
+    let maskData=null;
+    if(maskImage){
+      const mc=document.createElement('canvas');mc.width=w;mc.height=h;
+      mc.getContext('2d').drawImage(maskImage,0,0,w,h);
+      maskData=mc.getContext('2d').getImageData(0,0,w,h);
+    }
+    const out=applyTintToPixels(srcData,tint,maskData,w,h);
+    $('preview-canvas').width=w;$('preview-canvas').height=h;
+    $('preview-canvas').getContext('2d').putImageData(out,0,0);
+    $('tinted-canvas').width=w;$('tinted-canvas').height=h;
+    $('tinted-canvas').getContext('2d').putImageData(out,0,0);
+    tintedImageData=out;
+    $('export-tinted').disabled=false;
+    showToast('Tint applied!');
+  }
+});
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCanvas(imageData, filename) {
+  const c=document.createElement('canvas');
+  c.width=imageData.width;c.height=imageData.height;
+  c.getContext('2d').putImageData(imageData,0,0);
+  const a=document.createElement('a');
+  a.download=filename; a.href=c.toDataURL('image/png'); a.click();
+}
+$('export-tinted').addEventListener('click',()=>{
+  if(!tintedImageData)return;
+  const biomeName=tabMode==='biome'?selectedBiome.id:'custom';
+  exportCanvas(tintedImageData,`tinted_${biomeName}_${colormapType}.png`);
+});
+$('export-composite').addEventListener('click',()=>{
+  if(!compositeImageData)return;
+  const biomeName=tabMode==='biome'?selectedBiome.id:'custom';
+  exportCanvas(compositeImageData,`grass_side_${biomeName}.png`);
+});
+$('export-orig').addEventListener('click',()=>{
+  const img=grassSideMode?overlayImage:texImage; if(!img)return;
+  const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+  c.getContext('2d').drawImage(img,0,0);
+  const a=document.createElement('a');a.download='original.png';a.href=c.toDataURL('image/png');a.click();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderBiomeList();
+updateSwatch();
+</script>
+</body>
+</html>
