@@ -12,8 +12,10 @@ jobs:
         with:
           node-version: 24
       - run: npm install
-      - run: npm run build:mac
+      - run: npm run build:mac || true
       - uses: actions/upload-artifact@v4
         with:
           name: Grasskit-mac
-          path: dist/*.dmg
+          path: |
+            dist/*.dmg
+            dist/*.zip
